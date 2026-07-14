@@ -132,6 +132,13 @@ pre.empty{
     font-style:italic;
 }
 
+.letter-warning{
+    color:#b5443c;
+    font-size:13px;
+    font-style:italic;
+    margin-top:10px;
+}
+
 .copy-row{
     display:flex;
     align-items:center;

@@ -15,6 +15,8 @@ const skillInput = document.getElementById("skillInput");
 const skillList = document.getElementById("skillList");
 
 const letterEl = document.getElementById("letter");
+const letterWarning = document.getElementById("letterWarning");
+const generateBtn = document.getElementById("generateBtn");
 const copyBtn = document.getElementById("copyBtn");
 const copyStatus = document.getElementById("copyStatus");
 
@@ -114,7 +116,8 @@ skillInput.addEventListener("blur", function () {
 });
 
 
-// Build Letter
+// Build Letter (offline fallback)
+// Used only if the /chat request fails, so the user still gets something.
 
 function buildLetter() {
 
@@ -140,9 +143,9 @@ ${name}`;
 
 // Generate
 // Runs on form submit so the browser's native "required" validation
-// fires first (e.g. tabbing to an empty Name field and showing a prompt).
+// fires first. Calls the server's /chat endpoint, which calls Gemini.
 
-form.addEventListener("submit", function (e) {
+form.addEventListener("submit", async function (e) {
 
     e.preventDefault();
 
@@ -151,11 +154,69 @@ form.addEventListener("submit", function (e) {
         return;
     }
 
-    letterEl.textContent = buildLetter();
-    letterEl.classList.remove("empty");
-    copyBtn.disabled = false;
+    setLoadingState(true);
+
+    try {
+
+        const response = await fetch("/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                name: nameInput.value.trim(),
+                role: roleInput.value.trim(),
+                company: companyInput.value.trim(),
+                skills,
+            }),
+        });
+
+        if (!response.ok) {
+            const errBody = await response.json().catch(() => ({}));
+            throw new Error(errBody.error || `Server responded ${response.status}`);
+        }
+
+        const data = await response.json();
+        letterEl.textContent = data.letter;
+        letterEl.classList.remove("empty");
+        copyBtn.disabled = false;
+        hideWarning();
+
+    } catch (err) {
+
+        console.error("AI generation failed, falling back to local draft:", err);
+        letterEl.textContent = buildLetter();
+        letterEl.classList.remove("empty");
+        copyBtn.disabled = false;
+        showWarning("AI service unavailable right now — showing a local draft instead.");
+
+    } finally {
+        setLoadingState(false);
+    }
 
 });
+
+function setLoadingState(isLoading) {
+
+    generateBtn.disabled = isLoading;
+    generateBtn.textContent = isLoading ? "Generating…" : "Generate Draft";
+
+    if (isLoading) {
+        letterEl.textContent = "Generating your cover letter…";
+        letterEl.classList.add("empty");
+        copyBtn.disabled = true;
+        hideWarning();
+    }
+
+}
+
+function showWarning(message) {
+    letterWarning.textContent = message;
+    letterWarning.hidden = false;
+}
+
+function hideWarning() {
+    letterWarning.textContent = "";
+    letterWarning.hidden = true;
+}
 
 
 // Copy
