@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cover Letter Generator</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+
+    <div class="header">
+        <h1>Cover Letter Generator</h1>
+        <p>Fill the form and generate your cover letter.</p>
+    </div>
+
+    <div class="layout">
+
+        <!-- Form -->
+        <div class="card">
+
+            <form id="clForm">
+
+                <label for="name">Name <span class="required">*</span></label>
+                <input type="text" id="name" name="name" required autocomplete="name">
+
+                <label for="role">Job Role <span class="required">*</span></label>
+                <input type="text" id="role" name="role" required>
+
+                <label for="company">Company <span class="required">*</span></label>
+                <input type="text" id="company" name="company" required>
+
+                <label for="skillInput">Skills</label>
+                <div class="skill-box">
+                    <div id="skillList"></div>
+                    <input
+                        type="text"
+                        id="skillInput"
+                        placeholder="Press Enter or comma to add a skill">
+                </div>
+
+                <button type="submit" id="generateBtn">
+                    Generate Draft
+                </button>
+
+            </form>
+
+        </div>
+
+        <!-- Preview -->
+        <div class="card">
+
+            <p id="date"></p>
+
+            <pre id="letter" class="empty">Your generated letter will appear here.</pre>
+
+            <div class="copy-row">
+                <button id="copyBtn" type="button" disabled>Copy</button>
+                <span id="copyStatus" class="copy-status" aria-live="polite"></span>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
